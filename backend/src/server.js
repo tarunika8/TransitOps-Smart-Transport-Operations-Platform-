@@ -12,11 +12,3 @@ app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
 });
 
-import User from "./models/User.js";
-
-await User.create({
-    name: "Test User",
-    email: "test@test.com",
-    password: "123456",
-    role: "Fleet Manager"
-});
