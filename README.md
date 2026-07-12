@@ -34,7 +34,7 @@ TransitOps is a centralized operations platform that helps organizations manage 
 
 ## Getting Started
 
-### 1. Clone the repository
+### Clone the repository
 
 ```bash
 git clone https://github.com/your-org/transitops.git
