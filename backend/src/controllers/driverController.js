@@ -1,11 +1,11 @@
-const Driver = require('../models/Driver');
-const Vehicle = require('../models/Vehicle');
-const Trip = require('../models/Trip');
+import Driver from '../models/Driver.js';
+import Vehicle from '../models/Vehicle.js';
+import Trip from '../models/Trip.js';
 
 // @desc   Add a new driver
 // @route  POST /api/drivers
 // @access Private (Safety Officer / Fleet Manager)
-exports.addDriver = async (req, res) => {
+export const addDriver = async (req, res) => {
   try {
     const {
       name,
@@ -53,7 +53,7 @@ exports.addDriver = async (req, res) => {
 // Note: the actual assignment record is created via tripController.createTrip,
 // which links the driver + vehicle on a Trip document. This endpoint validates
 // eligibility ahead of time so the UI can surface clear errors before trip creation.
-exports.assignDriverToVehicle = async (req, res) => {
+export const assignDriverToVehicle = async (req, res) => {
   try {
     const { driverId, vehicleId } = req.params;
 
@@ -97,7 +97,7 @@ exports.assignDriverToVehicle = async (req, res) => {
 // @desc   Update a driver
 // @route  PUT /api/drivers/:id
 // @access Private (Safety Officer / Fleet Manager)
-exports.updateDriver = async (req, res) => {
+export const updateDriver = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = { ...req.body };
@@ -127,7 +127,7 @@ exports.updateDriver = async (req, res) => {
 // @desc   Delete a driver
 // @route  DELETE /api/drivers/:id
 // @access Private (Safety Officer / Fleet Manager)
-exports.deleteDriver = async (req, res) => {
+export const deleteDriver = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -150,7 +150,7 @@ exports.deleteDriver = async (req, res) => {
 // @desc   Get all drivers, with optional filters
 // @route  GET /api/drivers?status=&search=
 // @access Private
-exports.getAllDrivers = async (req, res) => {
+export const getAllDrivers = async (req, res) => {
   try {
     const { status, search } = req.query;
 
@@ -168,4 +168,12 @@ exports.getAllDrivers = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: 'Failed to fetch drivers', error: error.message });
   }
+};
+
+export default {
+  addDriver,
+  assignDriverToVehicle,
+  updateDriver,
+  deleteDriver,
+  getAllDrivers,
 };

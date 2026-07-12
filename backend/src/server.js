@@ -3,6 +3,9 @@ dotenv.config();
 
 import connectDB from "./config/db.js";
 import app from "./app.js";
+import authRoutes from "./routes/authRoutes.js";
+
+app.use("/api/auth", authRoutes);
 
 connectDB();
 
@@ -12,11 +15,3 @@ app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
 });
 
-import User from "./models/User.js";
-
-await User.create({
-    name: "Test User",
-    email: "test@test.com",
-    password: "123456",
-    role: "Fleet Manager"
-});
