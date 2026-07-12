@@ -1,12 +1,12 @@
-const FuelLog = require('../models/FuelLog');
-const Vehicle = require('../models/Vehicle');
-const AppError = require('../utils/AppError');
+import FuelLog from '../models/FuelLog.js';
+import Vehicle from '../models/Vehicle.js';
+import AppError from '../utils/AppError.js';
 
 /**
  * Add a fuel log entry for a vehicle.
  * Validates required fields and that the vehicle actually exists.
  */
-const addFuelLog = async ({ vehicle, liters, cost, date, distanceCovered }) => {
+export const addFuelLog = async ({ vehicle, liters, cost, date, distanceCovered }) => {
   if (!vehicle || liters == null || cost == null) {
     throw new AppError('vehicle, liters, and cost are required', 400);
   }
@@ -30,7 +30,7 @@ const addFuelLog = async ({ vehicle, liters, cost, date, distanceCovered }) => {
 /**
  * Get fuel log history, optionally filtered by vehicle and/or date range.
  */
-const getFuelHistory = async ({ vehicle, from, to } = {}) => {
+export const getFuelHistory = async ({ vehicle, from, to } = {}) => {
   const query = {};
   if (vehicle) query.vehicle = vehicle;
   if (from || to) {
@@ -46,7 +46,7 @@ const getFuelHistory = async ({ vehicle, from, to } = {}) => {
  * Calculate mileage (distance per liter) for a vehicle across its full fuel log history.
  * Returns totals plus the averaged mileage figure.
  */
-const calculateMileage = async (vehicleId) => {
+export const calculateMileage = async (vehicleId) => {
   const vehicle = await Vehicle.findById(vehicleId);
   if (!vehicle) {
     throw new AppError('Vehicle not found', 404);
@@ -69,7 +69,7 @@ const calculateMileage = async (vehicleId) => {
  * Calculate the average fuel consumption (liters per 100 km) for a vehicle.
  * This is the inverse framing of mileage, useful for cost-per-distance reporting.
  */
-const calculateAverageFuelConsumption = async (vehicleId) => {
+export const calculateAverageFuelConsumption = async (vehicleId) => {
   const { totalDistance, totalLiters } = await calculateMileage(vehicleId);
 
   if (totalDistance === 0) {
@@ -84,7 +84,7 @@ const calculateAverageFuelConsumption = async (vehicleId) => {
  * Calculate total fuel cost for a vehicle, or across the whole fleet if no
  * vehicleId is provided.
  */
-const calculateTotalFuelCost = async (vehicleId = null) => {
+export const calculateTotalFuelCost = async (vehicleId = null) => {
   const query = vehicleId ? { vehicle: vehicleId } : {};
   const logs = await FuelLog.find(query);
   const totalCost = logs.reduce((sum, log) => sum + log.cost, 0);
@@ -93,7 +93,7 @@ const calculateTotalFuelCost = async (vehicleId = null) => {
   return { vehicleId, totalCost, totalLiters, logCount: logs.length };
 };
 
-module.exports = {
+export default {
   addFuelLog,
   getFuelHistory,
   calculateMileage,

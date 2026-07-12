@@ -14,7 +14,7 @@
  * @param {Object} [meta] - Optional metadata (pagination info, counts, etc.).
  * @returns {Object} { success: true, message, data, meta? }
  */
-const successResponse = (data = null, message = 'Success', meta = null) => {
+export const successResponse = (data = null, message = 'Success', meta = null) => {
   const response = {
     success: true,
     message,
@@ -36,7 +36,7 @@ const successResponse = (data = null, message = 'Success', meta = null) => {
  * @param {*} [errors=null] - Optional extra error detail (validation errors, stack info, etc.).
  * @returns {Object} { success: false, message, statusCode, errors? }
  */
-const errorResponse = (message = 'Something went wrong', statusCode = 500, errors = null) => {
+export const errorResponse = (message = 'Something went wrong', statusCode = 500, errors = null) => {
   const response = {
     success: false,
     message,
@@ -50,7 +50,7 @@ const errorResponse = (message = 'Something went wrong', statusCode = 500, error
   return response;
 };
 
-module.exports = {
+export default {
   successResponse,
   errorResponse,
 };

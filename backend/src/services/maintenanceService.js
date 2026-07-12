@@ -1,6 +1,6 @@
-const Maintenance = require('../models/Maintenance');
-const Vehicle = require('../models/Vehicle');
-const AppError = require('../utils/AppError');
+import Maintenance from '../models/Maintenance.js';
+import Vehicle from '../models/Vehicle.js';
+import AppError from '../utils/AppError.js';
 
 const VALID_STATUSES = ['Open', 'Closed'];
 
@@ -10,7 +10,7 @@ const VALID_STATUSES = ['Open', 'Closed'];
  * to "In Shop" (handled by the Maintenance model's post-save hook), which
  * removes it from the dispatch/driver selection pool.
  */
-const scheduleMaintenance = async ({ vehicle, maintenanceType, date, cost, notes }) => {
+export const scheduleMaintenance = async ({ vehicle, maintenanceType, date, cost, notes }) => {
   if (!vehicle || !maintenanceType || cost == null) {
     throw new AppError('vehicle, maintenanceType, and cost are required', 400);
   }
@@ -44,7 +44,7 @@ const scheduleMaintenance = async ({ vehicle, maintenanceType, date, cost, notes
  * Business rule: closing a record restores the vehicle to "Available"
  * (unless the vehicle has been Retired) — handled via the model's close() method.
  */
-const updateMaintenanceStatus = async (maintenanceId, status) => {
+export const updateMaintenanceStatus = async (maintenanceId, status) => {
   if (!status || !VALID_STATUSES.includes(status)) {
     throw new AppError(`status must be one of: ${VALID_STATUSES.join(', ')}`, 400);
   }
@@ -68,7 +68,7 @@ const updateMaintenanceStatus = async (maintenanceId, status) => {
  * Get maintenance history, optionally filtered by vehicle and/or status.
  * Also returns the total cost across the returned records.
  */
-const getMaintenanceHistory = async ({ vehicle, status } = {}) => {
+export const getMaintenanceHistory = async ({ vehicle, status } = {}) => {
   const query = {};
   if (vehicle) query.vehicle = vehicle;
   if (status) query.status = status;
@@ -85,7 +85,7 @@ const getMaintenanceHistory = async ({ vehicle, status } = {}) => {
 /**
  * Calculate total maintenance cost, either for one vehicle or fleet-wide.
  */
-const calculateMaintenanceCost = async (vehicleId = null) => {
+export const calculateMaintenanceCost = async (vehicleId = null) => {
   const query = vehicleId ? { vehicle: vehicleId } : {};
   const records = await Maintenance.find(query);
   const totalCost = records.reduce((sum, r) => sum + r.cost, 0);
@@ -97,14 +97,14 @@ const calculateMaintenanceCost = async (vehicleId = null) => {
  * Get all currently open (upcoming/in-progress) maintenance records,
  * most urgent (earliest date) first.
  */
-const getUpcomingMaintenance = async (limit = 10) => {
+export const getUpcomingMaintenance = async (limit = 10) => {
   return Maintenance.find({ status: 'Open' })
     .populate('vehicle', 'registrationNumber name')
     .sort({ date: 1 })
     .limit(limit);
 };
 
-module.exports = {
+export default {
   scheduleMaintenance,
   updateMaintenanceStatus,
   getMaintenanceHistory,

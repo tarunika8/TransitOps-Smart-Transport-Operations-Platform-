@@ -1,12 +1,12 @@
-const mongoose = require('mongoose');
-const Expense = require('../models/Expense');
-const Vehicle = require('../models/Vehicle');
-const AppError = require('../utils/AppError');
+import mongoose from 'mongoose';
+import Expense from '../models/Expense.js';
+import Vehicle from '../models/Vehicle.js';
+import AppError from '../utils/AppError.js';
 
 /**
  * Add a new expense record (toll, fine, parking, etc.) for a vehicle.
  */
-const addExpense = async ({ vehicle, expenseType, amount, date, description }) => {
+export const addExpense = async ({ vehicle, expenseType, amount, date, description }) => {
   if (!vehicle || !expenseType || amount == null) {
     throw new AppError('vehicle, expenseType, and amount are required', 400);
   }
@@ -26,7 +26,7 @@ const addExpense = async ({ vehicle, expenseType, amount, date, description }) =
  * Update an existing expense record.
  * Vehicle reference cannot be changed once set, to keep cost history accurate.
  */
-const updateExpense = async (expenseId, updates = {}) => {
+export const updateExpense = async (expenseId, updates = {}) => {
   const safeUpdates = { ...updates };
   delete safeUpdates.vehicle;
 
@@ -49,7 +49,7 @@ const updateExpense = async (expenseId, updates = {}) => {
 /**
  * Delete an expense record by id.
  */
-const deleteExpense = async (expenseId) => {
+export const deleteExpense = async (expenseId) => {
   const expense = await Expense.findByIdAndDelete(expenseId);
   if (!expense) {
     throw new AppError('Expense not found', 404);
@@ -62,7 +62,7 @@ const deleteExpense = async (expenseId) => {
  * Always returns all 12 months, filling in zero totals where there were no expenses,
  * so the result can be charted directly.
  */
-const getMonthlyExpenseSummary = async ({ year, vehicle } = {}) => {
+export const getMonthlyExpenseSummary = async ({ year, vehicle } = {}) => {
   const targetYear = year || new Date().getFullYear();
   const start = new Date(`${targetYear}-01-01T00:00:00.000Z`);
   const end = new Date(`${targetYear + 1}-01-01T00:00:00.000Z`);
@@ -98,7 +98,7 @@ const getMonthlyExpenseSummary = async ({ year, vehicle } = {}) => {
  * Get total expenses grouped by expense type/category (e.g. Toll, Fine, Parking),
  * optionally scoped to a single vehicle.
  */
-const getExpenseByCategory = async ({ vehicle } = {}) => {
+export const getExpenseByCategory = async ({ vehicle } = {}) => {
   const match = {};
   if (vehicle) match.vehicle = new mongoose.Types.ObjectId(vehicle);
 
@@ -118,7 +118,7 @@ const getExpenseByCategory = async ({ vehicle } = {}) => {
   return byCategory;
 };
 
-module.exports = {
+export default {
   addExpense,
   updateExpense,
   deleteExpense,

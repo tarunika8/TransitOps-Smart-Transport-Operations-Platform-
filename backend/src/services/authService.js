@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const AppError = require('../utils/AppError');
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import AppError from '../utils/AppError.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret_in_env';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
@@ -11,7 +11,7 @@ const VALID_ROLES = ['Fleet Manager', 'Driver', 'Safety Officer', 'Financial Ana
  * Payload carries just enough info (id, role, email) for downstream
  * authorization checks without another DB round-trip.
  */
-const generateToken = (user) => {
+export const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role, email: user.email },
     JWT_SECRET,
@@ -26,7 +26,7 @@ const generateToken = (user) => {
  * - Password hashing happens automatically via the User model's pre('save') hook.
  * Returns the created user (password excluded) and a JWT.
  */
-const registerUser = async ({ name, email, password, role }) => {
+export const registerUser = async ({ name, email, password, role }) => {
   if (!name || !email || !password || !role) {
     throw new AppError('name, email, password, and role are all required', 400);
   }
@@ -58,7 +58,7 @@ const registerUser = async ({ name, email, password, role }) => {
  * Authenticate a user by email + password.
  * Returns a JWT and basic user info on success.
  */
-const loginUser = async ({ email, password }) => {
+export const loginUser = async ({ email, password }) => {
   if (!email || !password) {
     throw new AppError('Email and password are required', 400);
   }
@@ -91,7 +91,7 @@ const loginUser = async ({ email, password }) => {
  * Compare a plaintext password against a user's stored hash.
  * Wraps the model's own bcrypt comparison method for reuse across the service.
  */
-const comparePasswords = async (candidatePassword, userDoc) => {
+export const comparePasswords = async (candidatePassword, userDoc) => {
   return userDoc.comparePassword(candidatePassword);
 };
 
@@ -99,7 +99,7 @@ const comparePasswords = async (candidatePassword, userDoc) => {
  * Change the password for an authenticated user.
  * Requires the current password to be re-verified before applying the new one.
  */
-const changePassword = async (userId, { currentPassword, newPassword }) => {
+export const changePassword = async (userId, { currentPassword, newPassword }) => {
   if (!currentPassword || !newPassword) {
     throw new AppError('currentPassword and newPassword are required', 400);
   }
@@ -127,7 +127,7 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
 /**
  * Fetch a user's profile by id (password excluded by default schema projection).
  */
-const getUserProfile = async (userId) => {
+export const getUserProfile = async (userId) => {
   const user = await User.findById(userId);
   if (!user) {
     throw new AppError('User not found', 404);
@@ -135,7 +135,7 @@ const getUserProfile = async (userId) => {
   return user;
 };
 
-module.exports = {
+export default {
   generateToken,
   registerUser,
   loginUser,

@@ -1,15 +1,15 @@
-const Vehicle = require('../models/Vehicle');
-const Driver = require('../models/Driver');
-const Trip = require('../models/Trip');
-const Maintenance = require('../models/Maintenance');
-const FuelLog = require('../models/FuelLog');
-const Expense = require('../models/Expense');
+import Vehicle from '../models/Vehicle.js';
+import Driver from '../models/Driver.js';
+import Trip from '../models/Trip.js';
+import Maintenance from '../models/Maintenance.js';
+import FuelLog from '../models/FuelLog.js';
+import Expense from '../models/Expense.js';
 
 /**
  * Count vehicles by status, optionally scoped by type/status/region filters
  * (region is reserved for when that field is added to the Vehicle schema).
  */
-const getVehicleStats = async (filters = {}) => {
+export const getVehicleStats = async (filters = {}) => {
   const query = {};
   if (filters.type) query.type = filters.type;
   if (filters.status) query.status = filters.status;
@@ -31,7 +31,7 @@ const getVehicleStats = async (filters = {}) => {
  * Fleet utilization = percentage of currently-active (non-retired) vehicles
  * that are on a trip right now.
  */
-const calculateFleetUtilization = (vehicleStats) => {
+export const calculateFleetUtilization = (vehicleStats) => {
   const { active, onTrip } = vehicleStats;
   if (!active) return 0;
   return Number(((onTrip / active) * 100).toFixed(2));
@@ -40,7 +40,7 @@ const calculateFleetUtilization = (vehicleStats) => {
 /**
  * Count trips by lifecycle status (active/pending/completed).
  */
-const getTripStats = async () => {
+export const getTripStats = async () => {
   const [activeTrips, pendingTrips, completedTrips, cancelledTrips] = await Promise.all([
     Trip.countDocuments({ status: 'Dispatched' }),
     Trip.countDocuments({ status: 'Draft' }),
@@ -54,7 +54,7 @@ const getTripStats = async () => {
 /**
  * Driver statistics: how many are on duty vs. available vs. suspended/off duty.
  */
-const getDriverStats = async () => {
+export const getDriverStats = async () => {
   const [onDuty, available, offDuty, suspended, total] = await Promise.all([
     Driver.countDocuments({ status: 'On Trip' }),
     Driver.countDocuments({ status: 'Available' }),
@@ -69,7 +69,7 @@ const getDriverStats = async () => {
 /**
  * Fleet-wide fuel statistics: total liters consumed and total fuel spend.
  */
-const getFuelStats = async () => {
+export const getFuelStats = async () => {
   const agg = await FuelLog.aggregate([
     {
       $group: {
@@ -91,7 +91,7 @@ const getFuelStats = async () => {
  * plus a grand total operational cost figure (fuel is added in by the caller
  * since it's fetched separately via getFuelStats).
  */
-const getExpenseStats = async () => {
+export const getExpenseStats = async () => {
   const [expenseAgg, maintenanceAgg] = await Promise.all([
     Expense.aggregate([{ $group: { _id: null, total: { $sum: '$amount' } } }]),
     Maintenance.aggregate([{ $group: { _id: null, total: { $sum: '$cost' } } }]),
@@ -107,7 +107,7 @@ const getExpenseStats = async () => {
  * Currently open maintenance records, soonest first — used for the
  * "upcoming maintenance" dashboard widget.
  */
-const getUpcomingMaintenance = async (limit = 10) => {
+export const getUpcomingMaintenance = async (limit = 10) => {
   return Maintenance.find({ status: 'Open' })
     .populate('vehicle', 'registrationNumber name')
     .sort({ date: 1 })
@@ -118,7 +118,7 @@ const getUpcomingMaintenance = async (limit = 10) => {
  * Drivers whose license expires within the given number of days (default 30),
  * excluding those already suspended.
  */
-const getLicenseExpiryAlerts = async (withinDays = 30) => {
+export const getLicenseExpiryAlerts = async (withinDays = 30) => {
   const now = new Date();
   const threshold = new Date();
   threshold.setDate(threshold.getDate() + withinDays);
@@ -133,7 +133,7 @@ const getLicenseExpiryAlerts = async (withinDays = 30) => {
  * Assemble the full dashboard payload in one call: KPIs, fuel usage,
  * expense totals, upcoming maintenance, and license expiry alerts.
  */
-const getDashboardOverview = async (filters = {}) => {
+export const getDashboardOverview = async (filters = {}) => {
   const [vehicleStats, tripStats, driverStats, fuelStats, expenseStats, upcomingMaintenance, licenseAlerts] =
     await Promise.all([
       getVehicleStats(filters),
@@ -171,7 +171,7 @@ const getDashboardOverview = async (filters = {}) => {
   };
 };
 
-module.exports = {
+export default {
   getVehicleStats,
   calculateFleetUtilization,
   getTripStats,

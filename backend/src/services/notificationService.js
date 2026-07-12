@@ -1,6 +1,6 @@
-const Maintenance = require('../models/Maintenance');
-const Driver = require('../models/Driver');
-const Trip = require('../models/Trip');
+import Maintenance from '../models/Maintenance.js';
+import Driver from '../models/Driver.js';
+import Trip from '../models/Trip.js';
 
 /**
  * Build notification payloads for maintenance records that are due soon
@@ -8,7 +8,7 @@ const Trip = require('../models/Trip');
  * This only PREPARES the payloads — actual delivery (email/SMS/push) is
  * intentionally left to a separate integration layer.
  */
-const notifyUpcomingMaintenance = async (withinDays = 7) => {
+export const notifyUpcomingMaintenance = async (withinDays = 7) => {
   const now = new Date();
   const threshold = new Date();
   threshold.setDate(threshold.getDate() + withinDays);
@@ -36,7 +36,7 @@ const notifyUpcomingMaintenance = async (withinDays = 7) => {
  * `withinDays` (default 30). Excludes already-suspended drivers, since
  * they aren't currently eligible to drive regardless.
  */
-const notifyExpiringLicenses = async (withinDays = 30) => {
+export const notifyExpiringLicenses = async (withinDays = 30) => {
   const now = new Date();
   const threshold = new Date();
   threshold.setDate(threshold.getDate() + withinDays);
@@ -66,7 +66,7 @@ const notifyExpiringLicenses = async (withinDays = 30) => {
  * longer than `maxHours` (default 24) without being completed — a signal
  * that something may be delayed or unreported.
  */
-const notifyOverdueTrips = async (maxHours = 24) => {
+export const notifyOverdueTrips = async (maxHours = 24) => {
   const cutoff = new Date(Date.now() - maxHours * 60 * 60 * 1000);
 
   // Relies on a `dispatchedAt` timestamp being set when a trip is dispatched
@@ -104,7 +104,7 @@ const notifyOverdueTrips = async (maxHours = 24) => {
  * call, useful for a scheduled job (e.g. a daily cron) that fans them out
  * to whichever delivery channel is wired up later.
  */
-const prepareAllNotifications = async (options = {}) => {
+export const prepareAllNotifications = async (options = {}) => {
   const [maintenance, licenses, overdueTrips] = await Promise.all([
     notifyUpcomingMaintenance(options.maintenanceWithinDays),
     notifyExpiringLicenses(options.licenseWithinDays),
@@ -122,7 +122,7 @@ const prepareAllNotifications = async (options = {}) => {
   };
 };
 
-module.exports = {
+export default {
   notifyUpcomingMaintenance,
   notifyExpiringLicenses,
   notifyOverdueTrips,

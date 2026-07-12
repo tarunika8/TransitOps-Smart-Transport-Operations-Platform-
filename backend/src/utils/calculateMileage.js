@@ -1,29 +1,105 @@
 /**
- * calculateMileage.js
- * Computes fuel mileage (distance travelled per unit of fuel consumed).
+ * validators.js
+ * Small, dependency-free validation helpers reused across services/controllers.
+ * Each function returns a boolean (or, for isValidPassword, an object with
+ * detail) so callers decide how to surface the failure — no throwing here.
  */
 
 /**
- * Calculate mileage = distance / liters.
- * Safely handles divide-by-zero and invalid input by returning 0 instead
- * of throwing or producing NaN/Infinity.
+ * Validate an email address using a standard, pragmatic regex.
+ * Not fully RFC-5322 compliant (nothing simple is), but catches the
+ * overwhelming majority of real-world malformed addresses.
  *
- * @param {number} distance - Distance travelled (e.g. km).
- * @param {number} liters - Fuel consumed (in liters).
- * @param {number} [decimalPlaces=2] - Number of decimal places to round to.
- * @returns {number} Mileage (distance per liter), or 0 if it can't be computed.
+ * @param {string} email
+ * @returns {boolean}
  */
-const calculateMileage = (distance, liters, decimalPlaces = 2) => {
-  const dist = Number(distance);
-  const fuel = Number(liters);
-
-  // Guard against invalid numbers, negative values, or zero/undefined fuel
-  if (!Number.isFinite(dist) || !Number.isFinite(fuel) || dist < 0 || fuel <= 0) {
-    return 0;
-  }
-
-  const mileage = dist / fuel;
-  return Number(mileage.toFixed(decimalPlaces));
+export const isValidEmail = (email) => {
+  if (typeof email !== 'string') return false;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
 };
 
-module.exports = calculateMileage;
+/**
+ * Validate a phone number.
+ * Accepts an optional leading "+", then 7-15 digits (E.164-ish range),
+ * with optional spaces/dashes/parentheses stripped before checking.
+ *
+ * @param {string} phone
+ * @returns {boolean}
+ */
+export const isValidPhoneNumber = (phone) => {
+  if (typeof phone !== 'string') return false;
+  const cleaned = phone.replace(/[\s\-().]/g, '');
+  const phoneRegex = /^\+?[0-9]{7,15}$/;
+  return phoneRegex.test(cleaned);
+};
+
+/**
+ * Validate a vehicle registration number.
+ * Accepts alphanumeric characters and hyphens, 4-12 characters long
+ * (covers common formats like "KA-01-AB-1234" or "VAN-05").
+ * Adjust the regex if your region has a stricter/different format.
+ *
+ * @param {string} registrationNumber
+ * @returns {boolean}
+ */
+export const isValidRegistrationNumber = (registrationNumber) => {
+  if (typeof registrationNumber !== 'string') return false;
+  const regex = /^[A-Za-z0-9-]{4,12}$/;
+  return regex.test(registrationNumber.trim());
+};
+
+/**
+ * Validate that all required fields are present (and not empty/null/undefined)
+ * on a given object.
+ *
+ * @param {Object} data - The object to check (e.g. req.body).
+ * @param {string[]} requiredFields - List of field names that must be present.
+ * @returns {{ isValid: boolean, missingFields: string[] }}
+ */
+export const validateRequiredFields = (data = {}, requiredFields = []) => {
+  const missingFields = requiredFields.filter((field) => {
+    const value = data[field];
+    return value === undefined || value === null || value === '';
+  });
+
+  return {
+    isValid: missingFields.length === 0,
+    missingFields,
+  };
+};
+
+/**
+ * Validate password strength.
+ * Default policy: at least 8 characters, containing at least one uppercase
+ * letter, one lowercase letter, one digit, and one special character.
+ *
+ * @param {string} password
+ * @returns {{ isValid: boolean, reasons: string[] }}
+ */
+export const isValidPassword = (password) => {
+  const reasons = [];
+
+  if (typeof password !== 'string') {
+    return { isValid: false, reasons: ['Password must be a string'] };
+  }
+
+  if (password.length < 8) reasons.push('Password must be at least 8 characters long');
+  if (!/[A-Z]/.test(password)) reasons.push('Password must contain at least one uppercase letter');
+  if (!/[a-z]/.test(password)) reasons.push('Password must contain at least one lowercase letter');
+  if (!/[0-9]/.test(password)) reasons.push('Password must contain at least one digit');
+  if (!/[^A-Za-z0-9]/.test(password)) reasons.push('Password must contain at least one special character');
+
+  return {
+    isValid: reasons.length === 0,
+    reasons,
+  };
+};
+
+export default {
+  isValidEmail,
+  isValidPhoneNumber,
+  isValidRegistrationNumber,
+  validateRequiredFields,
+  isValidPassword,
+};

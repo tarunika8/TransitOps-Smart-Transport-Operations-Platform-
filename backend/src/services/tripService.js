@@ -1,7 +1,7 @@
-const Trip = require('../models/Trip');
-const Vehicle = require('../models/Vehicle');
-const Driver = require('../models/Driver');
-const AppError = require('../utils/AppError');
+import Trip from '../models/Trip.js';
+import Vehicle from '../models/Vehicle.js';
+import Driver from '../models/Driver.js';
+import AppError from '../utils/AppError.js';
 
 /**
  * Create a new trip in "Draft" status.
@@ -9,7 +9,7 @@ const AppError = require('../utils/AppError');
  * license expiry) is enforced by the Trip model's pre('validate') hook; any
  * failure there is surfaced here as a 400.
  */
-const createTrip = async ({ source, destination, vehicle, driver, cargoWeight, plannedDistance }) => {
+export const createTrip = async ({ source, destination, vehicle, driver, cargoWeight, plannedDistance }) => {
   if (!source || !destination || !vehicle || !driver || cargoWeight == null || plannedDistance == null) {
     throw new AppError(
       'source, destination, vehicle, driver, cargoWeight, and plannedDistance are required',
@@ -42,7 +42,7 @@ const createTrip = async ({ source, destination, vehicle, driver, cargoWeight, p
  *   changed since the trip was drafted).
  * - Automatically flips both vehicle and driver status to "On Trip".
  */
-const startTrip = async (tripId) => {
+export const startTrip = async (tripId) => {
   const trip = await Trip.findById(tripId);
   if (!trip) {
     throw new AppError('Trip not found', 404);
@@ -85,7 +85,7 @@ const startTrip = async (tripId) => {
  * - Records final odometer/fuel consumed and derives actual distance travelled.
  * - Automatically restores both vehicle and driver status to "Available".
  */
-const completeTrip = async (tripId, { finalOdometer, fuelConsumed } = {}) => {
+export const completeTrip = async (tripId, { finalOdometer, fuelConsumed } = {}) => {
   const trip = await Trip.findById(tripId);
   if (!trip) {
     throw new AppError('Trip not found', 404);
@@ -131,7 +131,7 @@ const completeTrip = async (tripId, { finalOdometer, fuelConsumed } = {}) => {
  * - Allowed from "Draft" or "Dispatched" status only.
  * - If the trip had already been dispatched, restores vehicle and driver to "Available".
  */
-const cancelTrip = async (tripId) => {
+export const cancelTrip = async (tripId) => {
   const trip = await Trip.findById(tripId);
   if (!trip) {
     throw new AppError('Trip not found', 404);
@@ -160,7 +160,7 @@ const cancelTrip = async (tripId) => {
  * dispatch and completion. Returns null if the trip hasn't been dispatched
  * and completed yet.
  */
-const calculateTripDuration = (trip) => {
+export const calculateTripDuration = (trip) => {
   if (!trip.dispatchedAt || !trip.completedAt) {
     return null;
   }
@@ -171,7 +171,7 @@ const calculateTripDuration = (trip) => {
 /**
  * Fetch a single trip by id, with vehicle/driver populated.
  */
-const getTripById = async (tripId) => {
+export const getTripById = async (tripId) => {
   const trip = await Trip.findById(tripId).populate('vehicle').populate('driver');
   if (!trip) {
     throw new AppError('Trip not found', 404);
@@ -182,7 +182,7 @@ const getTripById = async (tripId) => {
 /**
  * Fetch trips matching optional filters (status, vehicle, driver).
  */
-const getAllTrips = async (filters = {}) => {
+export const getAllTrips = async (filters = {}) => {
   const query = {};
   if (filters.status) query.status = filters.status;
   if (filters.vehicle) query.vehicle = filters.vehicle;
@@ -194,7 +194,7 @@ const getAllTrips = async (filters = {}) => {
     .sort({ createdAt: -1 });
 };
 
-module.exports = {
+export default {
   createTrip,
   startTrip,
   completeTrip,

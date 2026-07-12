@@ -33,7 +33,7 @@ const toDate = (input) => {
  * @param {Date|string|number} input
  * @returns {string} Formatted date, or '' if input is invalid.
  */
-const formatDDMMYYYY = (input) => {
+export const formatDDMMYYYY = (input) => {
   const date = toDate(input);
   if (!date) return '';
   return `${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}/${date.getFullYear()}`;
@@ -46,7 +46,7 @@ const formatDDMMYYYY = (input) => {
  * @param {Date|string|number} input
  * @returns {string} Formatted date, or '' if input is invalid.
  */
-const formatYYYYMMDD = (input) => {
+export const formatYYYYMMDD = (input) => {
   const date = toDate(input);
   if (!date) return '';
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
@@ -58,13 +58,13 @@ const formatYYYYMMDD = (input) => {
  * @param {Date|string|number} input
  * @returns {string} Formatted date, or '' if input is invalid.
  */
-const formatDDMMMYYYY = (input) => {
+export const formatDDMMMYYYY = (input) => {
   const date = toDate(input);
   if (!date) return '';
   return `${pad2(date.getDate())}-${MONTH_ABBREVIATIONS[date.getMonth()]}-${date.getFullYear()}`;
 };
 
-module.exports = {
+export default {
   formatDDMMYYYY,
   formatYYYYMMDD,
   formatDDMMMYYYY,

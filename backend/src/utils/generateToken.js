@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 // Pulled from environment so secrets/expiry never live in source code.
 // Falls back to safe-ish defaults only for local development.
@@ -15,7 +15,7 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
  * @param {string} [options.expiresIn] - Override the default expiry (e.g. '1h', '30d').
  * @returns {string} Signed JWT string.
  */
-const generateToken = (payload, options = {}) => {
+export const generateToken = (payload, options = {}) => {
   if (!payload || typeof payload !== 'object') {
     throw new Error('generateToken requires a payload object');
   }
@@ -33,11 +33,8 @@ const generateToken = (payload, options = {}) => {
  * @param {string} token - The JWT string to verify.
  * @returns {Object} The decoded payload.
  */
-const verifyToken = (token) => {
+export const verifyToken = (token) => {
   return jwt.verify(token, JWT_SECRET);
 };
 
-module.exports = {
-  generateToken,
-  verifyToken,
-};
+export default generateToken;

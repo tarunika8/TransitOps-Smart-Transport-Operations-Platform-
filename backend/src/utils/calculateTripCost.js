@@ -35,4 +35,4 @@ const calculateTripCost = (
   return Number(total.toFixed(decimalPlaces));
 };
 
-module.exports = calculateTripCost;
+export default calculateTripCost;

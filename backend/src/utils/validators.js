@@ -13,7 +13,7 @@
  * @param {string} email
  * @returns {boolean}
  */
-const isValidEmail = (email) => {
+export const isValidEmail = (email) => {
   if (typeof email !== 'string') return false;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.trim());
@@ -27,7 +27,7 @@ const isValidEmail = (email) => {
  * @param {string} phone
  * @returns {boolean}
  */
-const isValidPhoneNumber = (phone) => {
+export const isValidPhoneNumber = (phone) => {
   if (typeof phone !== 'string') return false;
   const cleaned = phone.replace(/[\s\-().]/g, '');
   const phoneRegex = /^\+?[0-9]{7,15}$/;
@@ -43,7 +43,7 @@ const isValidPhoneNumber = (phone) => {
  * @param {string} registrationNumber
  * @returns {boolean}
  */
-const isValidRegistrationNumber = (registrationNumber) => {
+export const isValidRegistrationNumber = (registrationNumber) => {
   if (typeof registrationNumber !== 'string') return false;
   const regex = /^[A-Za-z0-9-]{4,12}$/;
   return regex.test(registrationNumber.trim());
@@ -57,7 +57,7 @@ const isValidRegistrationNumber = (registrationNumber) => {
  * @param {string[]} requiredFields - List of field names that must be present.
  * @returns {{ isValid: boolean, missingFields: string[] }}
  */
-const validateRequiredFields = (data = {}, requiredFields = []) => {
+export const validateRequiredFields = (data = {}, requiredFields = []) => {
   const missingFields = requiredFields.filter((field) => {
     const value = data[field];
     return value === undefined || value === null || value === '';
@@ -77,7 +77,7 @@ const validateRequiredFields = (data = {}, requiredFields = []) => {
  * @param {string} password
  * @returns {{ isValid: boolean, reasons: string[] }}
  */
-const isValidPassword = (password) => {
+export const isValidPassword = (password) => {
   const reasons = [];
 
   if (typeof password !== 'string') {
@@ -96,7 +96,7 @@ const isValidPassword = (password) => {
   };
 };
 
-module.exports = {
+export default {
   isValidEmail,
   isValidPhoneNumber,
   isValidRegistrationNumber,
