@@ -1,27 +1,19 @@
-const express = require('express');
+import express from "express";
+import authController from "../controllers/authController.js";
+import { protect } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
 
-const authController = require('../controllers/authController');
-const { protect } = require('../middlewares/authMiddleware');
+// Register
+router.post("/register", authController.register);
 
-// @route   POST /api/auth/register
-// @desc    Register a new user (Fleet Manager, Driver, Safety Officer, Financial Analyst)
-// @access  Public
-router.post('/register', authController.register);
+// Login
+router.post("/login", authController.login);
 
-// @route   POST /api/auth/login
-// @desc    Login a user and receive a JWT
-// @access  Public
-router.post('/login', authController.login);
+// Get Profile
+router.get("/profile", protect, authController.getProfile);
 
-// @route   GET /api/auth/profile
-// @desc    Get the currently authenticated user's profile
-// @access  Private
-router.get('/profile', protect, authController.getProfile);
+// Change Password
+router.put("/change-password", protect, authController.changePassword);
 
-// @route   PUT /api/auth/change-password
-// @desc    Change the currently authenticated user's password
-// @access  Private
-router.put('/change-password', protect, authController.changePassword);
-
-module.exports = router;
+export default router;
