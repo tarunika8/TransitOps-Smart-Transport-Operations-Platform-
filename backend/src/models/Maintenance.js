@@ -1,15 +1,15 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const maintenanceSchema = new mongoose.Schema(
   {
     vehicle: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Vehicle',
-      required: [true, 'Vehicle is required'],
+      ref: "Vehicle",
+      required: [true, "Vehicle is required"],
     },
     maintenanceType: {
       type: String,
-      required: [true, 'Maintenance type is required'],
+      required: [true, "Maintenance type is required"],
       trim: true,
     },
     date: {
@@ -18,50 +18,58 @@ const maintenanceSchema = new mongoose.Schema(
     },
     cost: {
       type: Number,
-      required: [true, 'Cost is required'],
+      required: [true, "Cost is required"],
       min: 0,
     },
     status: {
       type: String,
-      enum: ['Open', 'Closed'],
-      default: 'Open',
+      enum: ["Open", "Closed"],
+      default: "Open",
     },
     notes: {
       type: String,
       trim: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-// When a new maintenance record is created with status Open,
-// automatically switch the vehicle's status to "In Shop"
-maintenanceSchema.post('save', async function (doc) {
-  const Vehicle = mongoose.model('Vehicle');
+// Automatically change vehicle status to "In Shop"
+// whenever an active maintenance record is created.
+maintenanceSchema.post("save", async function (doc) {
+  const Vehicle = mongoose.model("Vehicle");
+
   const vehicle = await Vehicle.findById(doc.vehicle);
+
   if (!vehicle) return;
 
-  if (doc.status === 'Open' && vehicle.status !== 'In Shop') {
-    vehicle.status = 'In Shop';
+  if (doc.status === "Open" && vehicle.status !== "In Shop") {
+    vehicle.status = "In Shop";
     await vehicle.save();
   }
 });
 
-// Instance method to close maintenance and restore vehicle to Available
-// (unless the vehicle has been Retired)
+// Instance method to close maintenance and
+// restore vehicle status to Available
+// unless the vehicle is Retired.
 maintenanceSchema.methods.close = async function () {
-  const Vehicle = mongoose.model('Vehicle');
+  const Vehicle = mongoose.model("Vehicle");
 
-  this.status = 'Closed';
+  this.status = "Closed";
   await this.save();
 
   const vehicle = await Vehicle.findById(this.vehicle);
-  if (vehicle && vehicle.status !== 'Retired') {
-    vehicle.status = 'Available';
+
+  if (vehicle && vehicle.status !== "Retired") {
+    vehicle.status = "Available";
     await vehicle.save();
   }
 
   return this;
 };
 
-module.exports = mongoose.model('Maintenance', maintenanceSchema);
+const Maintenance = mongoose.model("Maintenance", maintenanceSchema);
+
+export default Maintenance;

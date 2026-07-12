@@ -1,20 +1,20 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const fuelLogSchema = new mongoose.Schema(
   {
     vehicle: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Vehicle',
-      required: [true, 'Vehicle is required'],
+      ref: "Vehicle",
+      required: [true, "Vehicle is required"],
     },
     liters: {
       type: Number,
-      required: [true, 'Fuel amount (liters) is required'],
-      min: [0, 'Liters cannot be negative'],
+      required: [true, "Fuel amount (liters) is required"],
+      min: [0, "Liters cannot be negative"],
     },
     cost: {
       type: Number,
-      required: [true, 'Cost is required'],
+      required: [true, "Cost is required"],
       min: 0,
     },
     date: {
@@ -22,22 +22,27 @@ const fuelLogSchema = new mongoose.Schema(
       default: Date.now,
     },
     distanceCovered: {
-      // distance covered since last fuel log, used for fuel efficiency
+      // Distance covered since last fuel log, used for fuel efficiency
       type: Number,
       default: 0,
       min: 0,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-// Virtual: fuel efficiency for this log (distance / fuel)
-fuelLogSchema.virtual('fuelEfficiency').get(function () {
+// Virtual: Calculate fuel efficiency (distance / liters)
+fuelLogSchema.virtual("fuelEfficiency").get(function () {
   if (!this.liters) return 0;
   return this.distanceCovered / this.liters;
 });
 
-fuelLogSchema.set('toJSON', { virtuals: true });
-fuelLogSchema.set('toObject', { virtuals: true });
+// Include virtuals when converting to JSON/Object
+fuelLogSchema.set("toJSON", { virtuals: true });
+fuelLogSchema.set("toObject", { virtuals: true });
 
-module.exports = mongoose.model('FuelLog', fuelLogSchema);
+const FuelLog = mongoose.model("FuelLog", fuelLogSchema);
+
+export default FuelLog;

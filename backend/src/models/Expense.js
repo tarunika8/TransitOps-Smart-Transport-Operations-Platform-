@@ -1,21 +1,21 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const expenseSchema = new mongoose.Schema(
   {
     vehicle: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Vehicle',
-      required: [true, 'Vehicle is required'],
+      ref: "Vehicle",
+      required: [true, "Vehicle is required"],
     },
     expenseType: {
       // e.g. Toll, Maintenance, Parking, Fine, etc.
       type: String,
-      required: [true, 'Expense type is required'],
+      required: [true, "Expense type is required"],
       trim: true,
     },
     amount: {
       type: Number,
-      required: [true, 'Amount is required'],
+      required: [true, "Amount is required"],
       min: 0,
     },
     date: {
@@ -27,7 +27,11 @@ const expenseSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('Expense', expenseSchema);
+const Expense = mongoose.model("Expense", expenseSchema);
+
+export default Expense;
