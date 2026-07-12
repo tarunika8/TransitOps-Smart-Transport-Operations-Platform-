@@ -1,29 +1,23 @@
-const authorize = (...roles) => {
+import { validationResult } from "express-validator";
 
-    return (req, res, next) => {
+const validate = (req, res, next) => {
 
-        if (!req.user) {
+    const errors = validationResult(req);
 
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized"
-            });
+    if (!errors.isEmpty()) {
 
-        }
+        return res.status(400).json({
 
-        if (!roles.includes(req.user.role)) {
+            success: false,
 
-            return res.status(403).json({
-                success: false,
-                message: "Access Denied"
-            });
+            errors: errors.array()
 
-        }
+        });
 
-        next();
+    }
 
-    };
+    next();
 
 };
 
-export default authorize;
+export default validate;

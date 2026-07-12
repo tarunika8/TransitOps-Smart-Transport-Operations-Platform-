@@ -1,55 +1,53 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-const protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
+  let token;
 
-    let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    try {
+      token = req.headers.authorization.split(" ")[1];
 
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith("Bearer")
-    ) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        try {
+      req.user = await User.findById(decoded.id).select("-password");
 
-            token = req.headers.authorization.split(" ")[1];
-
-            const decoded = jwt.verify(
-                token,
-                process.env.JWT_SECRET
-            );
-
-            req.user = await User.findById(decoded.id).select("-password");
-
-            if (!req.user) {
-                return res.status(401).json({
-                    success: false,
-                    message: "User not found"
-                });
-            }
-
-            next();
-
-        } catch (error) {
-
-            return res.status(401).json({
-                success: false,
-                message: "Invalid Token"
-            });
-
-        }
-
-    }
-
-    if (!token) {
-
+      if (!req.user) {
         return res.status(401).json({
-            success: false,
-            message: "Access denied. No token provided."
+          success: false,
+          message: "User not found",
         });
+      }
 
+      next();
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token",
+      });
     }
+  }
 
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "Access denied. No token provided.",
+    });
+  }
 };
 
-export default protect;
+export const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
+    next();
+  };
+};
